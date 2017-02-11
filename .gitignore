@@ -1,0 +1,8 @@
+# Git ignore for AQI app
+
+# Folder
+build/
+log/
+
+# The temporary file
+*~
