@@ -17,11 +17,11 @@
 	|--Makefile // make脚本
 ```
 
-#### 爬虫
+## 爬虫
 
 爬虫引擎“每分钟”获取一次 [绿色呼吸](http://www.pm25.com/rank.html) 的空气质量数据存入mongodb，以“天”为`collection`，城市及其数据作为单个字段存放，数据格式为“年月日天时”，例如名为“2017021021”的`collection`中存放的是“2017年2月10日21时”的全国天气数据（不包含县及县以下行政区划）。
 
-#### API服务器
+## API服务器
 
 API服务器提供`JSON`格式的数据返回，请求示例：
 
@@ -90,7 +90,7 @@ GET `http://localhost:8088/aqi/成都&2017021001`
 }
 ```
 
-#### 使用Supervisor守护进程
+## 使用Supervisor守护进程
 
 安装Supervisor，在`/etc/supervisord.conf`添加：
 
