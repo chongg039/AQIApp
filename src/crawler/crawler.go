@@ -7,6 +7,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 )
 
 const (
@@ -63,8 +64,9 @@ func GetAndStore() {
 
 func AQITicker() {
 	c := cron.New()
+	t := time.Now()
 	c.AddFunc("@every 1m", func() {
-		// log.Println("Get and store", time.Now(), "data")
+		log.Println("Get and store", t.Local(), "data")
 		GetAndStore()
 	})
 	c.Start()

@@ -3,6 +3,7 @@
 # Folder
 build/
 log/
+data/
 
 # The temporary file
 *~
