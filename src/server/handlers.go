@@ -49,18 +49,18 @@ func ReturnNowData(w http.ResponseWriter, r *http.Request) {
 	city := mux.Vars(r)["city"]
 	result, message := OneCitySingleData(city, timeNow)
 
+	// Didn't find, 404
 	if message.Exist == true {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNotFound)
 		if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Text: "Not Found"}); err != nil {
 			panic(err)
 		}
 		return
 	}
 
-	// Didn't find, 404
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusNotFound)
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(result); err != nil {
 		panic(err)
 	}
