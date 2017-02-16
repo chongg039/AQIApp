@@ -4,6 +4,7 @@
 ~/AQIApp
 	|--build		// 可执行文件
 	|--log			// 日志文件
+	|--old			// 旧版源码
 	|--src			// 源码文件
 	|--README.md	// README
 ```
@@ -17,11 +18,57 @@
 	|--Makefile // make脚本
 ```
 
-## 爬虫
+## 爬虫引擎
 
-爬虫引擎“每分钟”获取一次 [绿色呼吸](http://www.pm25.com/rank.html) 的空气质量数据存入mongodb，以“小时”作为`collection`，城市及其数据作为单个字段存放，数据格式为“年月日天时”，例如名为“2017021021”的`collection`中存放的是“2017年2月10日21时”的全国天气数据（不包含县及县以下行政区划）。
+使用的第三方包：
+
+```go
+"github.com/PuerkitoBio/goquery"
+"github.com/go-sql-driver/mysql"
+"github.com/robfig/cron"
+```
+
+
+
+~~爬虫引擎“每分钟”获取一次 [绿色呼吸](http://www.pm25.com/rank.html) 的空气质量数据存入mongoDB，以“小时”作为`collection`，城市及其数据作为单个字段存放，数据格式为“年月日天时”，例如名为“2017021021”的`collection`中存放的是“2017年2月10日21时”的全国天气数据（不包含县及县以下行政区划）。~~
+
+2017年2月16日将服务从mongoDB迁移到Mysql，建立一个空气质量表统一存放：
+
+```sql
+/*
+假设数据库为"testcity"，表名为"aqi"
+建表语句中
+	id：统一格式为"2017021622"，表示2017年2月16日22时
+	city：城市名
+	aqi：AQI数值
+	time：统计时间
+其中将"id"和"city"作为复合主键，允许单个字段的重复
+*/
+CREATE TABLE `aqi` (
+  `id` int(11) NOT NULL,
+  `city` varchar(50) NOT NULL DEFAULT '',
+  `aqi` int(11) NOT NULL,
+  `time` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`,`city`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+```
+
+每小时更新数据为363条左右，若单条获取并写入数据耗时约9.85s，而同样单条写入mongoDB仅用时200ms（暂时不明白原因），非常影响性能，尤其是到百万级别数据写入更为如此。
+
+解决方案是采用事务插入，获取数据后将数据写入事务统一插入，节省了每次发送连接和开关数据库的开销。优化后360余条数据插入耗时约70ms，从打开数据库开始计算时间不到500ms。
+
+使用第三方定时模块[cron](https://github.com/robfig/cron)，检测当前时间的在每小时的第一分钟之内，定时每秒执行爬虫函数。使用[绿色呼吸](http://www.pm25.com/rank.html) 页面上的数据时间，检测数据库中是否有这个小时的数据，没有的话将数据存入，有的话不采取任何操作。
 
 ## API服务器
+
+使用的第三方包：
+
+```go
+"github.com/gorilla/mux"
+"github.com/go-sql-driver/mysql"
+```
+
+
 
 API服务器提供`JSON`格式的数据返回，请求示例：
 
