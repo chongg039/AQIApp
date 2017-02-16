@@ -78,7 +78,13 @@ func OneCityAllDataToday(t string, location string) (datas AQIDatas, err error) 
 
 	tmp := time.Now().Hour()
 	for i := 0; i <= tmp; i++ {
-		h := t + strconv.Itoa(i)
+		// 针对不同情况拼接字符串
+		var h string
+		if i < 10 {
+			h = t + "0" + strconv.Itoa(i)
+		} else {
+			h = t + strconv.Itoa(i)
+		}
 
 		rows, err := db.Query("SELECT * FROM testcity.aqi WHERE id=" + h + " AND city=\"" + location + "\";")
 		checkErr(err)
